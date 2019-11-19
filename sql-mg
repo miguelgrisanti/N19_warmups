@@ -1,0 +1,35 @@
+-- Get a list of the 3 long-standing customers for each country
+
+customer_age AS (SELECT customer_id, order_date DATEDIFF(day, '1998-05-06','1996-07-04'))
+
+WITH customer_info AS (
+    SELECT customer_id, 
+    country, 
+   order_date, DATEDIFF(day, '1998-05-06','1996-07-04') as customer_age,
+    RANK() OVER(PARTITION  BY country ORDER BY customer_age) as RANK
+    FROM customers
+    JOIN orders USING(customer_id)
+)
+
+SELECT *
+FROM customer_info
+WHERE rank <= 3;
+
+early_customers AS (
+    SELECT customer_id, min(order_date) AS first_customers 
+    FROM orders 
+    GROUP BY customer_id
+    LIMIT 3;
+
+SELECT customer_id, max(order_date) AS first_customers 
+    FROM orders 
+    GROUP BY customer_id
+    LIMIT 3;
+
+-- Modify the previous query to get the 3 newest customers in each each country.
+
+
+-- Get the 3 most frequently ordered products in each city
+-- FOR SIMPLICITY, we're interpreting "most frequent" as 
+-- "highest number of total units ordered within a country"
+-- hint: do something with the quanity column
